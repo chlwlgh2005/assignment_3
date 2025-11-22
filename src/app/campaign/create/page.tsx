@@ -4,13 +4,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabaseClient'; // Import the Supabase client
+import { supabase } from '@/lib/supabaseClient';
+import { addDays } from 'date-fns'; // date-fns에서 addDays 함수 임포트
 
 const formSchema = z.object({
   title: z.string().min(1, { message: 'Title is required.' }),
   description: z.string().min(1, { message: 'Description is required.' }),
   targetAmount: z.number().min(1, { message: 'Target amount must be at least 1.' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
+  durationDays: z.number().min(1, { message: 'Duration must be at least 1 day.' }), // 기간 필드 추가
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -22,11 +24,15 @@ export default function CreateCampaignPage() {
   });
 
   const onSubmit = async (data: FormData) => {
-    const { title, description, targetAmount, password } = data;
+    const { title, description, targetAmount, password, durationDays } = data;
+
+    const endDate = addDays(new Date(), durationDays); // 현재 날짜에 기간(일)을 더하여 종료 날짜 계산
 
     const { data: campaign, error } = await supabase
       .from('campaigns')
-      .insert([{ title, description, target_amount: targetAmount, password, current_amount: 0 }]);
+      .insert([{
+        title, description, target_amount: targetAmount, password, current_amount: 0, end_date: endDate.toISOString()
+      }]);
 
     if (error) {
       console.error('Error creating campaign:', error);
@@ -74,6 +80,18 @@ export default function CreateCampaignPage() {
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
             {errors.targetAmount && <p className="mt-1 text-sm text-red-600">{errors.targetAmount.message}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="durationDays" className="block text-sm font-medium text-gray-700">Funding Duration (Days)</label>
+            <input
+              type="number"
+              id="durationDays"
+              {...register('durationDays', { valueAsNumber: true })}
+              min={1}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+            {errors.durationDays && <p className="mt-1 text-sm text-red-600">{errors.durationDays.message}</p>}
           </div>
 
           <div>
