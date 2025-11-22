@@ -68,6 +68,9 @@ export default function CampaignsPage() {
                       style={{ width: `${Math.min(100, (campaign.current_amount / campaign.target_amount) * 100)}%` }}
                     ></div>
                   </div>
+                  <p className="text-sm font-medium mt-1">
+                    Progress: {((campaign.current_amount / campaign.target_amount) * 100).toFixed(2)}%
+                  </p>
                 </div>
                 <p className={`text-sm font-medium ${hasEnded ? 'text-red-600' : 'text-green-600'}`}>
                   {hasEnded ? 'Funding Ended' : `Ends ${remainingTime}`}

@@ -93,11 +93,14 @@ export default function CampaignDetailsPage() {
           <div className="w-full bg-gray-200 rounded-full h-4 mt-2">
             <div
               className="bg-green-600 h-4 rounded-full text-xs flex items-center justify-center text-white"
-              style={{ width: `${progress}%` }}
+              style={{ width: `${Math.min(100, (campaign.current_amount / campaign.target_amount) * 100)}%` }}
             >
               {progress.toFixed(2)}%
             </div>
           </div>
+          <p className="text-lg font-medium text-gray-800 mt-1">
+            Progress: {((campaign.current_amount / campaign.target_amount) * 100).toFixed(2)}%
+          </p>
         </div>
 
         <p className={`text-lg font-medium mb-4 ${hasEnded ? 'text-red-600' : 'text-green-600'}`}>
